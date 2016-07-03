@@ -14,6 +14,10 @@ public final class MovieContract {
     public static abstract class MovieEntry implements BaseColumns {
         public static final String TABLE_NAME = "movie";
 
+        // Type: INTEGER UNIQUE NOT NULL
+        // Description: Movie id on TMDb.
+        public static final String COLUMN_NAME_MOVIE_ID = "movie_id";
+
         // Type: TEXT NOT NULL
         // Description: Contains the url for movie poster.
         public static final String COLUMN_NAME_IMAGE_URL = "image_url";
