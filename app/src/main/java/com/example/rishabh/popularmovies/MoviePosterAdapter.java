@@ -34,7 +34,7 @@ public class MoviePosterAdapter extends ArrayAdapter<MoviePoster> {
                     inflate(R.layout.grid_item_movie, parent, false);
         }
         String baseUrl = "http://image.tmdb.org/t/p/";
-        String size = "w342";
+        String size = "w500";
         String finalUrl = baseUrl + size + moviePoster.url;
         Log.v(LOG_TAG, finalUrl);
         ImageView imageView = (ImageView) convertView.findViewById(R.id.grid_item_movie_imageview);

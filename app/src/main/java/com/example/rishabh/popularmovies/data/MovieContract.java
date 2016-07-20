@@ -10,6 +10,11 @@ public final class MovieContract {
     public static final String CONTENT_AUTHORITY = "com.example.rishabh.popularmovies";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
+    // create append path for different tables
+    public static final String MOVIE_PATH = "movie";
+    public static final String TRAILER_PATH = "trailer";
+    public static final String REVIEW_PATH = "review";
+
     /* Inner class that defines "movie" table columns. */
     public static abstract class MovieEntry implements BaseColumns {
         public static final String TABLE_NAME = "movie";
@@ -45,6 +50,12 @@ public final class MovieContract {
         // Type: TEXT NOT NULL
         // Description: Category of the movie
         public static final String COLUMN_NAME_CATEGORY = "category";
+
+
+        // Create a content Uri
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
+                .appendPath(MOVIE_PATH).build();
+        
     }
 
     /* Inner class that defines "trailer" table columns */

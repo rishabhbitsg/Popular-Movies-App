@@ -1,5 +1,9 @@
 package com.example.rishabh.popularmovies;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -17,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
@@ -75,6 +80,7 @@ public class MainActivityFragment extends Fragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
                 MoviePoster movieData = movieAdapter.getItem(i);
                 Intent detailIntent = new Intent(getActivity(), DetailActivity.class)
                         .putExtra("movie", movieData);
