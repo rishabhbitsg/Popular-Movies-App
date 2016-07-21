@@ -31,11 +31,6 @@ public class DetailActivityFragment extends Fragment {
             String baseUrl = "http://image.tmdb.org/t/p/";
             String size = "w185";
             String finalUrl = baseUrl + size + movieData.url;
-            ImageView imageView = (ImageView) rootView.findViewById(R.id.detail_thumbnail);
-            Picasso.with(getContext())
-                    .load(finalUrl)
-                    .into(imageView);
-
             ((TextView) rootView.findViewById(R.id.detail_rating)).setText(movieData.rating + "/10");
             ((TextView) rootView.findViewById(R.id.detail_synopsis)).setText(movieData.synopsis);
             ((TextView) rootView.findViewById(R.id.detail_release)).setText(movieData.releaseDate);

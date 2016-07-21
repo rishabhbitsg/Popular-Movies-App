@@ -13,7 +13,6 @@
         android:numColumns="2"
         tools:context=".MainActivityFragment"
         android:id="@+id/gridview_movie"
-        android:nestedScrollingEnabled="true"
         />
 
 </FrameLayout>
