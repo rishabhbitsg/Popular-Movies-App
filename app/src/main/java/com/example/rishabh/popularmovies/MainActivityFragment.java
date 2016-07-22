@@ -42,16 +42,21 @@ import java.util.Arrays;
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
-
     private MoviePosterAdapter movieAdapter;
     private ArrayList<MoviePoster> movieList;
+    private String category;
+
     public MainActivityFragment() {
     }
 
     @Override
     public void onCreate(Bundle savedInstanceStace) {
         super.onCreate(savedInstanceStace);
+
+        // To populate the overflow options menu
         this.setHasOptionsMenu(true);
+
+        // Restoring state on orientation changes
         if (savedInstanceStace == null || !savedInstanceStace.containsKey("movies")) {
             movieList = new ArrayList<MoviePoster>();
         }
@@ -62,6 +67,7 @@ public class MainActivityFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        // Saving state for future restoration
         outState.putParcelableArrayList("movies", movieList);
         super.onSaveInstanceState(outState);
     }
@@ -70,7 +76,6 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        movieList = new ArrayList<MoviePoster>();
 
         movieAdapter = new MoviePosterAdapter(getActivity(), movieList);
 
@@ -97,13 +102,13 @@ public class MainActivityFragment extends Fragment {
 
         @Override
         protected void onPostExecute(MoviePoster[] movies) {
+            movieAdapter.clear();
             if (movies != null) {
-                movieAdapter.clear();
                 for (MoviePoster data : movies) {
                     movieAdapter.add(data);
                 }
-                movieAdapter.notifyDataSetChanged();
             }
+            movieAdapter.notifyDataSetChanged();
         }
 
         protected MoviePoster[] doInBackground(String... params) {
@@ -117,13 +122,13 @@ public class MainActivityFragment extends Fragment {
             String appid = "bafc3d65522247af0dc6eb4cfa702ca1";
             String sortBy = null;
             try {
-                // Construct the URL for the OpenWeatherMap query
-                // Possible parameters are avaiable at OWM's forecast API page, at
-                // http://openweathermap.org/API#forecast
+
                 SharedPreferences preferences = PreferenceManager.
                         getDefaultSharedPreferences(getActivity());
                 sortBy = preferences.getString(getString(R.string.pref_sort_key),
                         getString(R.string.pref_sort_mostPopular));
+
+                // Construct the URL for the TMDB query
                 String FORECAST_BASE_URL = null;
                 if (sortBy.equals(getString(R.string.pref_sort_mostPopular))) {
                     FORECAST_BASE_URL = "http://api.themoviedb.org/3/movie/" + "popular?";
@@ -131,10 +136,15 @@ public class MainActivityFragment extends Fragment {
                 else if (sortBy.equals(getString(R.string.pref_sort_topRated))) {
                     FORECAST_BASE_URL = "http://api.themoviedb.org/3/movie/" + "top_rated?";
                 }
+                else if (sortBy.equals(getString(R.string.pref_sort_favorite))) {
+                    return null;
+                }
                 else {
                     FORECAST_BASE_URL = "http://api.themoviedb.org/3/movie/";
                     Log.v(LOG_TAG, "Invalid option for Sort By");
                 }
+
+
                 final String APPID_PARAM = "api_key";
 
                 Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
@@ -173,7 +183,7 @@ public class MainActivityFragment extends Fragment {
                 Log.v(LOG_TAG, movieJsonStr);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
-                // If the code didn't successfully get the weather data, there's no point in attemping
+                // If the code didn't successfully get the movie data, there's no point in attemping
                 // to parse it.
                 return null;
             } finally {
@@ -201,7 +211,7 @@ public class MainActivityFragment extends Fragment {
 
     private MoviePoster[] getMovieDataFromJson(String forecastJsonStr, int numMovies)
             throws JSONException {
-
+        final String TMDB_MOVIE_ID = "id";
         final String TMDB_RESULTS = "results";
         final String TMDB_POSTERPATH = "poster_path";
         final String TMDB_TITLE = "original_title";
@@ -215,17 +225,24 @@ public class MainActivityFragment extends Fragment {
 
         MoviePoster[] resultMovies = new MoviePoster[numMovies];
         for(int i = 0; i < movieArray.length(); i++) {
-            String url, title, synopsis, rating, releaseDate;
+            String url, title, synopsis, rating, releaseDate, id;
+
 
 
             JSONObject movie = movieArray.getJSONObject(i);
+            id = movie.getString(TMDB_MOVIE_ID);
             url = movie.getString(TMDB_POSTERPATH);
             title = movie.getString(TMDB_TITLE);
             synopsis = movie.getString(TMDB_OVERVIEW);
             rating = movie.getString(TMDB_VOTEAVG);
             releaseDate = movie.getString(TMDB_RELEASEDATE);
 
-            resultMovies[i] = new MoviePoster(url, title, synopsis, rating, releaseDate);
+
+
+
+
+
+            resultMovies[i] = new MoviePoster(url, title, synopsis, rating, releaseDate, id);
         }
         return resultMovies;
     }
@@ -234,7 +251,13 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        new FetchMovieTask().execute();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String newCategory = preferences.getString(getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_mostPopular));
+        if (category == null || !category.equals(newCategory)) {
+            category = newCategory;
+            new FetchMovieTask().execute();
+        }
     }
 
     @Override

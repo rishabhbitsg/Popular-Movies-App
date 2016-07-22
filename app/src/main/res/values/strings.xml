@@ -2,6 +2,8 @@
     <string name="app_name">Popular Movies</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="detail_favorite_button">MARK AS FAVORITE</string>
+    <string name="detail_review_heading">Movie Reviews</string>
 
     <!-- Strings related to Settings -->
 
@@ -31,14 +33,18 @@
     <string name="pref_sort_key">sort</string>
     <string name="pref_sort_topRated">1</string>
     <string name="pref_sort_mostPopular">0</string>
+    <string name="pref_sort_favorite">2</string>
+
     <string-array name="pref_movie_sort_entries">
         <item>Most Popular</item>
         <item>Top Rated</item>
+        <item>Favorites</item>
     </string-array>
 
     <string-array name="pref_movie_sort_values">
         <item>0</item>
         <item>1</item>
+        <item>2</item>
     </string-array>
     <!-- Example settings for Data & Sync -->
     <string name="pref_header_data_sync">Data &amp; sync</string>

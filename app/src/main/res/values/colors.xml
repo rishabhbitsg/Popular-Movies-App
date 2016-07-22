@@ -9,4 +9,6 @@
     <color name="grey_700">#616161</color>
 
     <color name="yellow_a200">#FFFF00</color>
+    <color name="detail_title_background">#4DD0E1</color>
+    <color name="detail_favourite_button_background">#4FC3F7</color>
 </resources>

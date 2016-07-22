@@ -32,11 +32,20 @@ public class MoviePosterAdapter extends ArrayAdapter<MoviePoster> {
             convertView = LayoutInflater.from(getContext()).
                     inflate(R.layout.grid_item_movie, parent, false);
         }
+        else if (((ImageView) convertView.findViewById(R.id.grid_item_movie_imageview)).
+                // If already loaded, don't try to reload.
+                getTag().equals(moviePoster.url)) {
+            return convertView;
+        }
+        ImageView imageView = (ImageView) convertView.findViewById(R.id.grid_item_movie_imageview);
         String baseUrl = "http://image.tmdb.org/t/p/";
         String size = "w640";
         String finalUrl = baseUrl + size + moviePoster.url;
         Log.v(LOG_TAG, finalUrl);
-        ImageView imageView = (ImageView) convertView.findViewById(R.id.grid_item_movie_imageview);
+
+       // Mark this image has been loaded
+        imageView.setTag(moviePoster.url);
+
         Picasso.with(getContext())
                 .load(finalUrl)
                 .into(imageView);

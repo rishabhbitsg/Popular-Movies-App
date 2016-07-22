@@ -1,53 +1,74 @@
 <ScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:nestedScrollingEnabled="true"
-    android:scrollbarAlwaysDrawVerticalTrack="false">
+    android:layout_height="wrap_content">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        android:padding="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         tools:context="com.example.rishabh.popularmovies.DetailActivityFragment"
         tools:showIn="@layout/activity_detail">
 
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#000"
-            android:textAlignment="center"
-            android:id="@+id/detail_title"
-            android:textSize="32sp"
-            android:fontFamily="serif" />
-
         <LinearLayout
-            android:padding="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/detail_title_background_height"
+            android:gravity="center_vertical"
+            android:background="@color/detail_title_background"
+            android:elevation="4dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/detail_title_padding"
+                android:textColor="#fff"
+                android:id="@+id/detail_title"
+                android:textSize="32sp"
+                android:fontFamily="sans-serif" />
+        </LinearLayout>
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textSize="24dp"
-                android:fontFamily="sans-serif-condensed"
-                android:gravity="center"
-                android:textColor="#000"
-                android:id="@+id/detail_release" />
+            android:orientation="horizontal"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/detail_thumbnail_paddingTop">
 
-            <TextView
-                android:layout_width="0dp"
+            <ImageView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-condensed-light"
-                android:textSize="24dp"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:id="@+id/detail_rating"/>
+                android:id="@+id/detail_movie_thumbnail"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/detail_thumbnail_neighbour_padding"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:textAppearanceLarge"
+                    android:textSize="@dimen/text_large"
+                    android:textColor="@color/grey_500"
+                    android:fontFamily="sans-serif-condensed"
+                    android:id="@+id/detail_release" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:paddingTop="@dimen/activity_vertical_margin"
+                    android:textAppearance="?android:textAppearanceLarge"
+                    android:textSize="@dimen/text_small"
+                    android:id="@+id/detail_rating"/>
+
+                <Button
+                    android:layout_width="@dimen/detail_favorite_button_width"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:id="@+id/detail_favorite_button"
+                    android:text="@string/detail_favorite_button"
+                    android:textColor="@color/grey_700"
+                    android:background="@color/detail_favourite_button_background"/>
+            </LinearLayout>
         </LinearLayout>
 
 
@@ -55,14 +76,46 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp"
-            android:textColor="#111"
-            android:fontFamily="sans-serif-light"
-            android:textSize="24dp"
+            android:textColor="@color/grey_700"
+            android:fontFamily="sans-serif"
+            android:textSize="@dimen/text_small"
             android:id="@+id/detail_synopsis"/>
 
-    </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/grey_300"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            />
 
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/detail_trailer_list"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:nestedScrollingEnabled="true"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginLeft="@dimen/activity_vertical_margin"
+            android:textColor="@color/grey_700"
+            android:textSize="@dimen/text_large"
+            android:text="@string/detail_review_heading"/>
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/detail_review_list"
+            android:layout_margin="@dimen/activity_vertical_margin"
+            android:nestedScrollingEnabled="true"/>
+    </LinearLayout>
 </ScrollView>
+
 
 
 
