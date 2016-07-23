@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -23,6 +24,8 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import com.example.rishabh.popularmovies.data.MovieContract;
+import com.example.rishabh.popularmovies.data.MovieDbHelper;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -47,6 +50,10 @@ public class MainActivityFragment extends Fragment {
     private String category;
 
     public MainActivityFragment() {
+    }
+
+    public interface Callback {
+        public void onItemSelected(MoviePoster moviePoster);
     }
 
     @Override
@@ -87,9 +94,10 @@ public class MainActivityFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
                 MoviePoster movieData = movieAdapter.getItem(i);
-                Intent detailIntent = new Intent(getActivity(), DetailActivity.class)
-                        .putExtra("movie", movieData);
-                startActivity(detailIntent);
+
+                if (movieData != null) {
+                    ((Callback) getActivity()).onItemSelected(movieData);
+                }
             }
         });
         return rootView;
@@ -137,7 +145,29 @@ public class MainActivityFragment extends Fragment {
                     FORECAST_BASE_URL = "http://api.themoviedb.org/3/movie/" + "top_rated?";
                 }
                 else if (sortBy.equals(getString(R.string.pref_sort_favorite))) {
-                    return null;
+                    Cursor cursor = getActivity().getContentResolver().query(
+                            MovieContract.MovieEntry.CONTENT_URI,
+                            null,
+                            null,
+                            null,
+                            null
+                    );
+
+                    MoviePoster[] movies  = new MoviePoster[cursor.getCount()];
+                    int i = 0;
+                    String url, title, synopsis, rating, releaseDate, id;
+                    while (cursor.moveToNext()) {
+                        id = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_NAME_MOVIE_ID));
+                        url = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_NAME_IMAGE_URL));
+                        title = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_NAME_TITLE));
+                        synopsis = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_NAME_SYNOPSIS));
+                        rating = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_NAME_RATING));
+                        releaseDate = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_NAME_RELEASE_DATE));
+
+                        movies[i++] = new MoviePoster(url, title, synopsis, rating, releaseDate, id);
+                    }
+
+                    return movies;
                 }
                 else {
                     FORECAST_BASE_URL = "http://api.themoviedb.org/3/movie/";
@@ -254,7 +284,7 @@ public class MainActivityFragment extends Fragment {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String newCategory = preferences.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_mostPopular));
-        if (category == null || !category.equals(newCategory)) {
+        if (category == null || !category.equals(newCategory) || category == getString(R.string.pref_sort_favorite)) {
             category = newCategory;
             new FetchMovieTask().execute();
         }
@@ -276,4 +306,8 @@ public class MainActivityFragment extends Fragment {
         }
         return super.onOptionsItemSelected(item);
     }
-}
+
+    public void onButtonClick() {
+        new FetchMovieTask().execute();
+    }
+ }

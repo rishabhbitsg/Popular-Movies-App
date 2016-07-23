@@ -4,6 +4,7 @@
     <string name="title_activity_settings">Settings</string>
     <string name="detail_favorite_button">MARK AS FAVORITE</string>
     <string name="detail_review_heading">Movie Reviews</string>
+    <string name="content_authority">com.example.rishabh.popularmovies</string>
 
     <!-- Strings related to Settings -->
 

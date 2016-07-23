@@ -1,7 +1,9 @@
 package com.example.rishabh.popularmovies;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -15,11 +17,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.rishabh.popularmovies.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -43,19 +47,23 @@ public class DetailActivityFragment extends Fragment {
     private ReviewAdapter mReviewAdapter;
     private ListView mTrailerListView;
     private ListView mReviewListView;
-
+    private boolean mFavorited;
     public DetailActivityFragment() {
     }
 
+    public interface Callback {
+        public void onButtonClick();
+    }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent intent = getActivity().getIntent();
         mTrailerAdapter = new TrailerAdapter(getActivity(), new ArrayList<Trailer>());
         mReviewAdapter = new ReviewAdapter(getActivity(), new ArrayList<Review>());
-        if (intent != null && intent.hasExtra("movie")) {
-            MoviePoster moviePoster = (MoviePoster) intent.getParcelableExtra("movie");
+        Bundle args = getArguments();
+        if (args != null) {
+            MoviePoster moviePoster = (MoviePoster) args.getParcelable("movie");
             new FetchTrailerTask().execute(moviePoster.id);
+            new FetchReviewTask().execute(moviePoster.id);
         }
 
     }
@@ -64,15 +72,11 @@ public class DetailActivityFragment extends Fragment {
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
-        Intent intent = getActivity().getIntent();
-
-        if (intent != null && intent.hasExtra("movie")) {
-            movieData = (MoviePoster) intent.getParcelableExtra("movie");
-            new FetchTrailerTask().execute(movieData.id);
-            new FetchReviewTask().execute(movieData.id);
-
+        Bundle args = getArguments();
+        if (args != null) {
+            movieData = (MoviePoster) args.getParcelable("movie");
             String baseUrl = "http://image.tmdb.org/t/p/";
-            String size = "w500";
+            String size = "w342";
             final String finalUrl = baseUrl + size + movieData.url;
             ImageView thumbnail = (ImageView) rootView.findViewById(R.id.detail_movie_thumbnail);
             Picasso.with(getActivity())
@@ -82,11 +86,27 @@ public class DetailActivityFragment extends Fragment {
             ((TextView) rootView.findViewById(R.id.detail_synopsis)).setText(movieData.synopsis);
             ((TextView) rootView.findViewById(R.id.detail_release)).setText(movieData.releaseDate.substring(0, 4));
             ((TextView) rootView.findViewById(R.id.detail_title)).setText(movieData.title);
+            Button button = (Button) rootView.findViewById(R.id.detail_favorite_button);
 
+            Cursor cursor = getActivity().getContentResolver().query(
+                    MovieContract.MovieEntry.CONTENT_URI,
+                    null,
+                    MovieContract.MovieEntry.COLUMN_NAME_MOVIE_ID + "=" + movieData.id,
+                    null,
+                    null
+            );
 
+            if (cursor.moveToFirst()) {
+                mFavorited = true;
+                button.setText("FAVORITED");
+
+            }
+            else {
+                mFavorited = false;
+                button.setText("MARK AS FAVORITE");
+            }
 
             mTrailerListView = (ListView) rootView.findViewById(R.id.detail_trailer_list);
-            mTrailerListView.setAdapter(mTrailerAdapter);
 
 
             mTrailerListView.setOnItemClickListener(
@@ -108,10 +128,53 @@ public class DetailActivityFragment extends Fragment {
 
 
         mReviewListView = (ListView) rootView.findViewById(R.id.detail_review_list);
-        mReviewListView.setAdapter(mReviewAdapter);
+        final Button button = (Button) rootView.findViewById(R.id.detail_favorite_button);
+        button.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mFavorited) {
+                            int rowsDeleted = getActivity().getContentResolver().delete(
+                                    MovieContract.MovieEntry.CONTENT_URI,
+                                    MovieContract.MovieEntry.COLUMN_NAME_MOVIE_ID + "=" + movieData.id,
+                                    null
+                            );
+
+                            if (rowsDeleted == 0) {
+                                throw new RuntimeException("Movie not Unfavorited");
+                            }
+
+                            button.setText("MARK AS FAVORITE");
+                            mFavorited = false;
+
+                        }
+                        else {
+                            ContentValues contentValues = new ContentValues();
+                            contentValues.put(MovieContract.MovieEntry.COLUMN_NAME_IMAGE_URL, movieData.url);
+                            contentValues.put(MovieContract.MovieEntry.COLUMN_NAME_MOVIE_ID, movieData.id);
+                            contentValues.put(MovieContract.MovieEntry.COLUMN_NAME_RATING, movieData.rating);
+                            contentValues.put(MovieContract.MovieEntry.COLUMN_NAME_RELEASE_DATE, movieData.releaseDate);
+                            contentValues.put(MovieContract.MovieEntry.COLUMN_NAME_SYNOPSIS, movieData.synopsis);
+                            contentValues.put(MovieContract.MovieEntry.COLUMN_NAME_TITLE, movieData.title);
 
 
+                            Uri uri = getActivity().getContentResolver().insert(
+                                    MovieContract.MovieEntry.CONTENT_URI,
+                                    contentValues
+                            );
 
+                            Log.v("DetailFragment", uri.toString());
+
+                            button.setText("Favorited");
+                            mFavorited = true;
+                        }
+
+                        ((Callback) getActivity()).onButtonClick();
+                    }
+                }
+        );
+
+        if (args == null) return null;
         return rootView;
     }
 
@@ -161,7 +224,7 @@ public class DetailActivityFragment extends Fragment {
                     Log.v(LOG_TAG, data.name);
                 }
 
-                mTrailerAdapter.notifyDataSetChanged();
+                mTrailerListView.setAdapter(mTrailerAdapter);
                 setListViewHeightBasedOnChildren(mTrailerListView);
             }
         }
@@ -273,7 +336,7 @@ public class DetailActivityFragment extends Fragment {
                 for (Review data : movies) {
                     mReviewAdapter.add(data);
                 }
-                mReviewAdapter.notifyDataSetChanged();
+                mReviewListView.setAdapter(mReviewAdapter);
                 setListViewHeightBasedOnChildren(mReviewListView);
             }
         }

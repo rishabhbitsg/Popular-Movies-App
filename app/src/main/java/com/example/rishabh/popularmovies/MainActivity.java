@@ -12,7 +12,9 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback, DetailActivityFragment.Callback{
+    private boolean mTwoPane;
+    private static final String DETAILFRAGMENT_TAG = "DFTAG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +23,18 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
+
+        if (findViewById(R.id.movie_detail_container) != null) {
+            mTwoPane = true;
+
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.movie_detail_container, new DetailActivityFragment(), DETAILFRAGMENT_TAG);
+            }
+        }
+        else {
+            mTwoPane = false;
+        }
     }
 
     @Override
@@ -35,5 +49,39 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    public void onItemSelected(MoviePoster moviePoster) {
+        if (mTwoPane) {
+            Bundle args = new Bundle();
+            args.putParcelable("movie", moviePoster);
+
+            DetailActivityFragment fragment = new DetailActivityFragment();
+            fragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, fragment, DETAILFRAGMENT_TAG)
+                    .commit();
+        }
+        else {
+            Intent intent = new Intent(this, DetailActivity.class)
+                    .putExtra("movie", moviePoster);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mTwoPane) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, new DetailActivityFragment(), DETAILFRAGMENT_TAG).commit();
+        }
+    }
+
+    @Override
+    public void onButtonClick() {
+        ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment)).onButtonClick();
     }
 }

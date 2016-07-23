@@ -10,7 +10,7 @@
     <GridView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:numColumns="2"
+        android:numColumns="@integer/noOfColumns"
         tools:context=".MainActivityFragment"
         android:id="@+id/gridview_movie"
         />

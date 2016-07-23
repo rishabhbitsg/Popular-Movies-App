@@ -2,6 +2,7 @@ package com.example.rishabh.popularmovies;
 
 import android.app.Activity;
 import android.graphics.Movie;
+import android.media.Image;
 import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,31 +27,32 @@ public class MoviePosterAdapter extends ArrayAdapter<MoviePoster> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder viewHolder;
         MoviePoster moviePoster = getItem(position);
-
         if (convertView == null) {
+            viewHolder = new ViewHolder();
             convertView = LayoutInflater.from(getContext()).
                     inflate(R.layout.grid_item_movie, parent, false);
+            viewHolder.imageView = (ImageView) convertView.findViewById(R.id.grid_item_movie_imageview);
+            convertView.setTag(viewHolder);
         }
-        else if (((ImageView) convertView.findViewById(R.id.grid_item_movie_imageview)).
-                // If already loaded, don't try to reload.
-                getTag().equals(moviePoster.url)) {
-            return convertView;
+        else {
+            viewHolder = (ViewHolder) convertView.getTag();
         }
-        ImageView imageView = (ImageView) convertView.findViewById(R.id.grid_item_movie_imageview);
         String baseUrl = "http://image.tmdb.org/t/p/";
-        String size = "w640";
+        String size = "w500";
         String finalUrl = baseUrl + size + moviePoster.url;
         Log.v(LOG_TAG, finalUrl);
 
-       // Mark this image has been loaded
-        imageView.setTag(moviePoster.url);
-
         Picasso.with(getContext())
                 .load(finalUrl)
-                .into(imageView);
+                .into(viewHolder.imageView);
 
 
         return convertView;
+    }
+
+    static class ViewHolder {
+        ImageView imageView;
     }
 }
